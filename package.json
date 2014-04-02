@@ -1,0 +1,45 @@
+{
+    "name": "stream-m",
+    "version": "0.0.0",
+    "description": "Akh Nu stream monad",
+    "keywords": [
+        "stream", 
+        "lazy",
+        "akh",
+        "monad"
+    ],
+    "author": "Matt Bierner",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "git@github.com:mattbierner/stream-m.git"
+    },
+    
+    "main": "index.js",
+    "directories": {
+        "lib": "dist_node"
+    },
+    "files": [
+        "dist_node/",
+        "lib",
+        "test",
+        "index.js"
+    ],
+    "dependencies": {
+        "akh": "1.0.x",
+        "nu-stream": ">=3.2.0",
+        
+        "require-directory": "1.2.x"
+    },
+    "devDependencies": {
+        "nodeunit": "0.8.x"
+    },
+    
+    "scripts": {
+        "test": "node test.js",
+        
+        "build": "npm run build-amd && npm run build-node",
+        "build-amd": "khepri lib -o dist",
+        "build-node": "khepri lib -o dist_node --package_manager=node"
+    }
+}

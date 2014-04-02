@@ -1,0 +1,76 @@
+/**
+ * @fileOverview Stream monad transformer.
+ */
+package StreamT
+with
+    import 'akh::base' {liftM liftM2},
+    import 'akh::structure' {Monoid Monad Transformer},
+    
+    import 'nu-stream::stream' {foldr map cons concat append NIL first isStream isEmpty}
+in {
+
+var flip := \f -> \x y -> f(y, x);
+
+var list := \x -> cons(x, NIL);
+
+var flatCons := \a b ->
+    cons(
+        ?!isEmpty a && isStream (first a) : first a : a,
+        b);
+
+/* Transformer
+ ******************************************************************************/
+/**
+ * List monad transformer.
+ * 
+ * @param m Base monad.
+ */
+StreamT = \m -> {
+    var Instance = function \run =self-> {
+        self.run = run;
+    };
+    
+    var sequence := foldr @ (liftM2 @ (flip flatCons), m.of NIL);
+
+    var mapM := map \>> sequence;
+    
+    Monoid(Instance,
+        new Instance (
+            m.of NIL),
+        
+        \b =a->
+            new Instance (
+                liftM2(append,
+                    StreamT.runStreamT(a),
+                    StreamT.runStreamT(b))));
+    
+    Monad(Instance,
+        \x ->
+            new Instance (
+                m.of <| list x),
+        
+        \f =c->
+            new Instance (
+                StreamT.runStreamT(c)
+                    .chain(mapM @ (f \> StreamT.runStreamT))
+                    .map(concat)));
+    
+    Transformer(Instance, m,
+        \t ->
+            new Instance (
+                liftM(list, t)));
+    
+    return Instance;
+};
+
+/* Running
+ ******************************************************************************/
+/**
+ * Perform a list computation.
+ * 
+ * @param m StreamT computation.
+ */
+StreamT.runStreamT = \m ->
+    m.run;
+
+}

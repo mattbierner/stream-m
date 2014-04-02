@@ -1,0 +1,17 @@
+/**
+ * @typeOverview Regular stream type.
+ */
+package Stream
+with
+    import 'akh::identity' Identity,
+    
+    import './trans/stream' StreamT
+in {
+
+/* Monad
+ ******************************************************************************/
+Stream = StreamT(Identity);
+
+Stream.runStream = StreamT.runStreamT \> Identity.runIdentity;
+
+}
